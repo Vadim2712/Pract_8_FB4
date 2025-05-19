@@ -26,7 +26,7 @@ function scheduledReminders() {
 
   if (subscriptions.length > 0) {
     console.log(`Отправка напоминаний для ${subscriptions.length} подписчиков`);
-    
+
     subscriptions.forEach(subscription => {
       webPush.sendNotification(subscription, payload)
         .catch(err => {
@@ -69,13 +69,13 @@ app.post('/send-notification', (req, res) => {
   });
 
   const results = [];
-  const promises = subscriptions.map(sub => 
+  const promises = subscriptions.map(sub =>
     webPush.sendNotification(sub, payload)
       .then(() => results.push({ status: 'success', endpoint: sub.endpoint }))
       .catch(err => {
         console.error('Ошибка отправки:', err);
         results.push({ status: 'error', endpoint: sub.endpoint, error: err.message });
-        
+
         // Автоматическое удаление недействительных подписок
         if (err.statusCode === 410) {
           subscriptions = subscriptions.filter(s => s.endpoint !== sub.endpoint);
@@ -92,7 +92,7 @@ app.get('/vapid-public-key', (req, res) => {
   res.json({ key: process.env.VAPID_PUBLIC_KEY });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });

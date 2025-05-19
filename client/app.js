@@ -1,6 +1,6 @@
 const VAPID_PRIVATE_KEY = 'Ваш_приватный_ключ';
 const VAPID_EMAIL = 'your@email.com';
-const PORT = '3000';
+const PORT = '3001';
 
 // Глобальные переменные
 let vapidPublicKey = '';
@@ -15,24 +15,24 @@ async function init() {
     // Загрузка задач из хранилища
     loadTasks();
     renderTasks();
-    
+
     // Получаем публичный ключ с сервера
     const response = await fetch('/vapid-public-key');
     const data = await response.json();
     vapidPublicKey = data.key;
-    
+
     // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
       serviceWorkerReg = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker зарегистрирован');
-      
+
       const subscription = await serviceWorkerReg.pushManager.getSubscription();
       updateUI(subscription);
     } else {
       console.log('Service Worker не поддерживается в этом браузере');
       updateStatus('Service Worker не поддерживается', 'orange');
     }
-    
+
     setupEventHandlers();
   } catch (error) {
     console.error('Ошибка инициализации:', error);
@@ -44,13 +44,13 @@ function setupEventHandlers() {
   // Управление уведомлениями
   document.getElementById('subscribeBtn').addEventListener('click', togglePushNotification);
   document.getElementById('sendBtn').addEventListener('click', sendTestNotification);
-  
+
   // Управление задачами
   document.getElementById('addTaskBtn').addEventListener('click', addTask);
   document.getElementById('taskInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addTask();
   });
-  
+
   // Фильтры задач
   document.getElementById('allBtn').addEventListener('click', () => applyFilter('all'));
   document.getElementById('activeBtn').addEventListener('click', () => applyFilter('active'));
@@ -59,10 +59,10 @@ function setupEventHandlers() {
 
 async function togglePushNotification() {
   if (!serviceWorkerReg) return;
-  
+
   try {
     const subscription = await serviceWorkerReg.pushManager.getSubscription();
-    
+
     if (subscription) {
       await unsubscribe(subscription);
       updateUI(null);
@@ -104,7 +104,7 @@ async function unsubscribe(subscription) {
 function addTask() {
   const input = document.getElementById('taskInput');
   const text = input.value.trim();
-  
+
   if (text) {
     const newTask = {
       id: Date.now(),
@@ -112,12 +112,12 @@ function addTask() {
       completed: false,
       createdAt: new Date().toISOString()
     };
-    
+
     tasks.push(newTask);
     saveTasks();
     renderTasks();
     input.value = '';
-    
+
     // Отправить уведомление о новой задаче
     notifyNewTask(newTask);
   }
@@ -150,41 +150,41 @@ function applyFilter(filter) {
 function renderTasks() {
   const taskList = document.getElementById('taskList');
   taskList.innerHTML = '';
-  
+
   const filteredTasks = tasks.filter(task => {
     if (currentFilter === 'all') return true;
     if (currentFilter === 'active') return !task.completed;
     if (currentFilter === 'completed') return task.completed;
     return true;
   });
-  
+
   if (filteredTasks.length === 0) {
     taskList.innerHTML = '<p>Нет задач для отображения</p>';
     return;
   }
-  
+
   filteredTasks.forEach(task => {
     const taskItem = document.createElement('div');
     taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
-    
+
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = task.completed;
     checkbox.addEventListener('change', () => toggleTaskStatus(task.id));
-    
+
     const taskText = document.createElement('span');
     taskText.className = 'task-text';
     taskText.textContent = task.text;
-    
+
     const deleteButton = document.createElement('button');
     deleteButton.className = 'delete-btn';
     deleteButton.textContent = '✖';
     deleteButton.addEventListener('click', () => deleteTask(task.id));
-    
+
     taskItem.appendChild(checkbox);
     taskItem.appendChild(taskText);
     taskItem.appendChild(deleteButton);
-    
+
     taskList.appendChild(taskItem);
   });
 }
@@ -205,12 +205,12 @@ async function notifyNewTask(task) {
     const response = await fetch('/send-notification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        title: 'Новая задача добавлена', 
-        body: task.text 
+      body: JSON.stringify({
+        title: 'Новая задача добавлена',
+        body: task.text
       })
     });
-    
+
     if (!response.ok) throw new Error('Ошибка сервера');
   } catch (error) {
     console.error('Ошибка отправки уведомления:', error);
@@ -220,7 +220,7 @@ async function notifyNewTask(task) {
 async function sendTestNotification() {
   const title = document.getElementById('titleInput').value;
   const body = document.getElementById('bodyInput').value;
-  
+
   try {
     const response = await fetch('/send-notification', {
       method: 'POST',
