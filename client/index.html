@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Умный список задач</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4a76a8">
+</head>
+<body>
+    <div class="container">
+        <h1>Умный список задач</h1>
+        <div id="status">Статус: проверка...</div>
+
+        <div class="add-task">
+            <input type="text" id="taskInput" placeholder="Добавить новую задачу">
+            <button id="addTaskBtn">Добавить</button>
+        </div>
+
+        <div class="filters">
+            <button id="allBtn" class="active">Все</button>
+            <button id="activeBtn">Активные</button>
+            <button id="completedBtn">Выполненные</button>
+        </div>
+
+        <button id="subscribeBtn">Включить уведомления</button>
+
+        <div class="task-list" id="taskList">
+            <!-- Здесь будут отображаться задачи -->
+        </div>
+
+        <div class="send-box">
+            <h3>Тест уведомлений:</h3>
+            <input type="text" id="titleInput" value="Новая задача">
+            <textarea id="bodyInput">Не забыть о задаче!</textarea>
+            <button id="sendBtn">Отправить тестовое уведомление</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
